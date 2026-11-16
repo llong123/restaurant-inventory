@@ -10,8 +10,6 @@ import {
 import "@fontsource/noto-sans-thai/thai-400.css";
 import "@fontsource/noto-sans-thai/thai-500.css";
 import "@fontsource/noto-sans-thai/thai-600.css";
-import thaiRegularFont from "@reductoai/portable-fonts/files/NotoSansThai-Regular.ttf?url";
-import thaiBoldFont from "@reductoai/portable-fonts/files/NotoSansThai-Bold.ttf?url";
 
 type InventoryItem = {
   id: string;
@@ -517,19 +515,23 @@ async function createInventoryPdf(
 ) {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
-  const fontFamily = locale === "th-TH" ? "NotoSansThai" : "helvetica";
+  const fontFamily = "helvetica";
   if (locale === "th-TH") {
-    pdf.addFileToVFS(
-      "NotoSansThai-Regular.ttf",
-      await fetchFontAsBase64(thaiRegularFont),
-    );
-    pdf.addFileToVFS(
-      "NotoSansThai-Bold.ttf",
-      await fetchFontAsBase64(thaiBoldFont),
-    );
-    pdf.addFont("NotoSansThai-Regular.ttf", "NotoSansThai", "normal");
-    pdf.addFont("NotoSansThai-Bold.ttf", "NotoSansThai", "bold");
+    await document.fonts.load('400 16px "Noto Sans Thai"');
+    await document.fonts.load('700 16px "Noto Sans Thai"');
   }
+  const drawText = (
+    text: string | string[],
+    x: number,
+    y: number,
+    options?: { align?: "left" | "right" | "center" },
+  ) => {
+    if (locale !== "th-TH") {
+      pdf.text(text, x, y, options);
+      return;
+    }
+    drawThaiText(pdf, text, x, y, options?.align ?? "left");
+  };
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   const margin = 19;
@@ -563,11 +565,11 @@ async function createInventoryPdf(
   pdf.setTextColor(36, 76, 59);
   pdf.setFont(fontFamily, "bold");
   pdf.setFontSize(10);
-  pdf.text(t.restaurantName.toLocaleUpperCase(locale), margin, 17);
+  drawText(t.restaurantName.toLocaleUpperCase(locale), margin, 17);
   pdf.setTextColor(128, 137, 128);
   pdf.setFont(fontFamily, "normal");
   pdf.setFontSize(8);
-  pdf.text(t.appName.toLocaleUpperCase(locale), right, 17, { align: "right" });
+  drawText(t.appName.toLocaleUpperCase(locale), right, 17, { align: "right" });
 
   pdf.setDrawColor(225, 229, 222);
   pdf.setLineWidth(0.35);
@@ -576,13 +578,13 @@ async function createInventoryPdf(
   pdf.setTextColor(31, 40, 33);
   pdf.setFont(fontFamily, "bold");
   pdf.setFontSize(25);
-  pdf.text(t.pdfReport, margin, 37);
+  drawText(t.pdfReport, margin, 37);
   pdf.setTextColor(109, 119, 110);
   pdf.setFont(fontFamily, "normal");
   pdf.setFontSize(10);
-  pdf.text(dateLabel, margin, 44);
+  drawText(dateLabel, margin, 44);
   pdf.setFontSize(8);
-  pdf.text(`${t.submitted} ${submittedAt}`, margin, 50);
+  drawText(`${t.submitted} ${submittedAt}`, margin, 50);
 
   const metaTop = 58;
   const metaWidth = (right - margin - 8) / 2;
@@ -592,8 +594,8 @@ async function createInventoryPdf(
   pdf.setTextColor(125, 134, 125);
   pdf.setFont(fontFamily, "bold");
   pdf.setFontSize(7);
-  pdf.text(t.itemCount.toLocaleUpperCase(locale), margin + 5, metaTop + 7);
-  pdf.text(
+  drawText(t.itemCount.toLocaleUpperCase(locale), margin + 5, metaTop + 7);
+  drawText(
     t.countedBy.toLocaleUpperCase(locale),
     margin + metaWidth + 13,
     metaTop + 7,
@@ -603,7 +605,7 @@ async function createInventoryPdf(
   pdf.setFontSize(11);
   pdf.text(String(items.length).padStart(2, "0"), margin + 5, metaTop + 14);
   pdf.setFont(fontFamily, "normal");
-  pdf.text(worker || t.notSpecified, margin + metaWidth + 13, metaTop + 14);
+  drawText(worker || t.notSpecified, margin + metaWidth + 13, metaTop + 14);
 
   let y = 91;
   const drawTableHeader = () => {
@@ -612,10 +614,10 @@ async function createInventoryPdf(
     pdf.setTextColor(255, 255, 255);
     pdf.setFont(fontFamily, "bold");
     pdf.setFontSize(7);
-    pdf.text(t.rowNumber, margin + 4, y + 6.5);
-    pdf.text(t.itemColumn, margin + 20, y + 6.5);
-    pdf.text(t.quantity, right - 48, y + 6.5);
-    pdf.text(t.unit, right - 5, y + 6.5, { align: "right" });
+    drawText(t.rowNumber, margin + 4, y + 6.5);
+    drawText(t.itemColumn, margin + 20, y + 6.5);
+    drawText(t.quantity, right - 48, y + 6.5);
+    drawText(t.unit, right - 5, y + 6.5, { align: "right" });
     y += 10;
   };
 
@@ -625,7 +627,7 @@ async function createInventoryPdf(
     pdf.setTextColor(36, 76, 59);
     pdf.setFont(fontFamily, "bold");
     pdf.setFontSize(9);
-    pdf.text(category.title, margin + 4, y + 7);
+    drawText(category.title, margin + 4, y + 7);
     y += 13;
   };
 
@@ -638,7 +640,16 @@ async function createInventoryPdf(
 
   for (const group of groups) {
     if (y + 24 > pageHeight - 22) {
-      addPdfFooter(pdf, pageHeight, margin, right, t, locale, fontFamily);
+      addPdfFooter(
+        pdf,
+        pageHeight,
+        margin,
+        right,
+        t,
+        locale,
+        fontFamily,
+        drawText,
+      );
       pdf.addPage();
       y = 20;
     }
@@ -646,12 +657,24 @@ async function createInventoryPdf(
     drawTableHeader();
 
     group.items.forEach((item, index) => {
-      const itemName = pdf.splitTextToSize(
-        item.name.trim(),
-        right - margin - 77,
-      );
+      const itemName =
+        locale === "th-TH"
+          ? wrapThaiText(
+              item.name.trim(),
+              right - margin - 77,
+              10,
+              pdf.getFont().fontStyle,
+            )
+          : pdf.splitTextToSize(item.name.trim(), right - margin - 77);
       const description = item.description?.trim()
-        ? pdf.splitTextToSize(item.description.trim(), right - margin - 77)
+        ? locale === "th-TH"
+          ? wrapThaiText(
+              item.description.trim(),
+              right - margin - 77,
+              8,
+              "normal",
+            )
+          : pdf.splitTextToSize(item.description.trim(), right - margin - 77)
         : [];
       const rowHeight = Math.max(
         11,
@@ -659,7 +682,16 @@ async function createInventoryPdf(
       );
 
       if (y + rowHeight > pageHeight - 22) {
-        addPdfFooter(pdf, pageHeight, margin, right, t, locale, fontFamily);
+        addPdfFooter(
+          pdf,
+          pageHeight,
+          margin,
+          right,
+          t,
+          locale,
+          fontFamily,
+          drawText,
+        );
         pdf.addPage();
         y = 20;
         drawSectionHeader(group.category);
@@ -672,29 +704,29 @@ async function createInventoryPdf(
       pdf.setTextColor(139, 148, 139);
       pdf.setFont(fontFamily, "normal");
       pdf.setFontSize(8);
-      pdf.text(String(index + 1).padStart(2, "0"), margin + 4, y + 7);
+      drawText(String(index + 1).padStart(2, "0"), margin + 4, y + 7);
       pdf.setTextColor(37, 46, 39);
       pdf.setFont(fontFamily, "bold");
       pdf.setFontSize(10);
-      pdf.text(itemName, margin + 20, y + 6);
+      drawText(itemName, margin + 20, y + 6);
       if (description.length) {
         pdf.setTextColor(109, 119, 110);
         pdf.setFont(fontFamily, "normal");
         pdf.setFontSize(8);
-        pdf.text(description, margin + 20, y + 6 + itemName.length * 4.3);
+        drawText(description, margin + 20, y + 6 + itemName.length * 4.3);
       }
       pdf.setTextColor(37, 46, 39);
       pdf.setFont(fontFamily, "normal");
       pdf.setFontSize(10);
-      pdf.text(item.quantity, right - 48, y + 6);
+      drawText(item.quantity, right - 48, y + 6);
       pdf.setTextColor(99, 110, 100);
-      pdf.text(item.unit, right - 5, y + 6, { align: "right" });
+      drawText(item.unit, right - 5, y + 6, { align: "right" });
       y += rowHeight;
     });
     y += 7;
   }
 
-  addPdfFooter(pdf, pageHeight, margin, right, t, locale, fontFamily);
+  addPdfFooter(pdf, pageHeight, margin, right, t, locale, fontFamily, drawText);
   const filenameDate = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Helsinki",
   }).format(date);
@@ -712,11 +744,90 @@ function downloadFile(file: File) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-async function fetchFontAsBase64(url: string) {
-  const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary);
+function wrapThaiText(
+  text: string,
+  maxWidthMm: number,
+  fontSizePt: number,
+  fontStyle: string,
+) {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) return [text];
+  const fontSizePx = (fontSizePt * 96) / 72;
+  context.font = `${fontStyle === "bold" ? "bold" : "normal"} ${fontSizePx}px "Noto Sans Thai"`;
+  const segmenter = new (
+    Intl as unknown as {
+      Segmenter: new (
+        locales?: string | string[],
+        options?: { granularity: "word" },
+      ) => { segment: (value: string) => Iterable<{ segment: string }> };
+    }
+  ).Segmenter("th", { granularity: "word" });
+  const maxWidthPx = (maxWidthMm * 96) / 25.4;
+  const lines: string[] = [];
+  let line = "";
+  for (const { segment } of segmenter.segment(text)) {
+    const next = line + segment;
+    if (line && context.measureText(next).width > maxWidthPx) {
+      lines.push(line.trimEnd());
+      line = segment.trimStart();
+    } else {
+      line = next;
+    }
+  }
+  if (line) lines.push(line.trimEnd());
+  return lines.length ? lines : [text];
+}
+
+function drawThaiText(
+  pdf: jsPDF,
+  text: string | string[],
+  xMm: number,
+  baselineMm: number,
+  align: "left" | "right" | "center" = "left",
+) {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  const lines = Array.isArray(text) ? text : [text];
+  const fontSizePx = (pdf.getFontSize() * 96) / 72;
+  const fontStyle = pdf.getFont().fontStyle === "bold" ? "bold" : "normal";
+  context.font = `${fontStyle} ${fontSizePx}px "Noto Sans Thai"`;
+  const scale = 3;
+  const widths = lines.map((line) => context.measureText(line).width);
+  const maxLineWidth = Math.max(1, ...widths);
+  const canvasWidth = Math.ceil(maxLineWidth + 6);
+  const lineHeight = fontSizePx * 1.25;
+  const canvasHeight = Math.ceil(
+    fontSizePx * 1.15 + lineHeight * (lines.length - 1) + fontSizePx * 0.5,
+  );
+  canvas.width = canvasWidth * scale;
+  canvas.height = canvasHeight * scale;
+  context.scale(scale, scale);
+  context.font = `${fontStyle} ${fontSizePx}px "Noto Sans Thai"`;
+  context.fillStyle = pdf.getTextColor();
+  context.textBaseline = "alphabetic";
+
+  lines.forEach((line, index) => {
+    context.fillText(line, 3, fontSizePx * 1.15 + index * lineHeight);
+  });
+  const imageWidthMm = (maxLineWidth * 25.4) / 96;
+  const imageHeightMm = (canvasHeight * 25.4) / 96;
+  const imageX =
+    align === "right"
+      ? xMm - imageWidthMm
+      : align === "center"
+        ? xMm - imageWidthMm / 2
+        : xMm;
+  const imageY = baselineMm - (fontSizePx * 1.1 * 25.4) / 96;
+  pdf.addImage(
+    canvas.toDataURL("image/png"),
+    "PNG",
+    imageX,
+    imageY,
+    imageWidthMm,
+    imageHeightMm,
+  );
 }
 
 function addPdfFooter(
@@ -727,6 +838,12 @@ function addPdfFooter(
   t: Translation,
   locale: string,
   fontFamily: string,
+  drawText: (
+    text: string | string[],
+    x: number,
+    y: number,
+    options?: { align?: "left" | "right" | "center" },
+  ) => void,
 ) {
   pdf.setDrawColor(225, 229, 222);
   pdf.setLineWidth(0.3);
@@ -734,12 +851,12 @@ function addPdfFooter(
   pdf.setTextColor(135, 144, 135);
   pdf.setFont(fontFamily, "normal");
   pdf.setFontSize(7);
-  pdf.text(
+  drawText(
     t.internalInventory.toLocaleUpperCase(locale),
     margin,
     pageHeight - 9,
   );
-  pdf.text(t.restaurantName.toLocaleUpperCase(locale), right, pageHeight - 9, {
+  drawText(t.restaurantName.toLocaleUpperCase(locale), right, pageHeight - 9, {
     align: "right",
   });
 }
