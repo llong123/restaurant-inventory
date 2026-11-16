@@ -54,7 +54,12 @@ input::placeholder { color: #b2b8b1; }
 .item-list { display: grid; gap: 8px; }
 .item-row { display: grid; grid-template-columns: 26px minmax(0, 1fr) 100px 100px 29px; align-items: center; gap: 10px; }
 .row-index { color: #a4aaa2; font: 9px 'DM Mono', monospace; text-align: center; }
+.item-details { grid-column: 2; display: grid; gap: 5px; min-width: 0; }
 .item-row input, .item-row select { height: 42px; padding: 0 11px; font-size: 12px; }
+.item-details .item-name-input { height: 38px; }
+.item-description-input { width: 100%; min-height: 32px; resize: vertical; padding: 7px 10px; color: var(--ink); border: 1px solid #e7eae4; border-radius: 7px; background: #fff; font: 11px/1.4 'DM Sans', sans-serif; transition: border-color .15s, box-shadow .15s; }
+.item-description-input:focus { border-color: #93ad98; outline: none; box-shadow: 0 0 0 3px rgba(93, 133, 103, .1); }
+.item-description-input::placeholder { color: #a5ada4; }
 .item-row select { appearance: none; padding-right: 27px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237d887e' stroke-width='2'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; }
 .quantity-input { text-align: right; }
 .remove-button { display: grid; place-items: center; width: 29px; height: 34px; padding: 0; border: 0; background: transparent; color: #a9b0a8; border-radius: 6px; }
@@ -112,11 +117,13 @@ input::placeholder { color: #b2b8b1; }
     border-radius: 9px;
     background: #fcfcfa;
   }
+  .item-details { grid-area: name; gap: 8px; }
   .row-index { display: none; }
-  .item-name-input { grid-area: name; }
   .quantity-input { grid-area: quantity; text-align: left; }
   .unit-select { grid-area: unit; }
   .item-row input, .item-row select { height: 48px; padding: 0 12px; font-size: 16px; }
+  .item-details .item-name-input { height: 48px; }
+  .item-description-input { min-height: 44px; padding: 11px 12px; font-size: 14px; }
   .item-row select { padding-right: 27px; background-position: right 9px center; }
   .remove-button { grid-area: remove; justify-self: end; width: 48px; height: 48px; border: 1px solid #e9ece6; background: #fff; color: #858f85; }
   .remove-button svg { width: 20px; height: 20px; }

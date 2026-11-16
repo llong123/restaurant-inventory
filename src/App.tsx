@@ -4,6 +4,7 @@ import type { jsPDF } from 'jspdf'
 type InventoryItem = {
   id: string
   name: string
+  description: string
   quantity: string
   unit: string
 }
@@ -17,7 +18,7 @@ const storageKey = 'stockroom-inventory-draft'
 const units = ['each', 'kg', 'g', 'L', 'mL', 'box', 'pack', 'bottle', 'case']
 
 function newItem(): InventoryItem {
-  return { id: crypto.randomUUID(), name: '', quantity: '', unit: 'each' }
+  return { id: crypto.randomUUID(), name: '', description: '', quantity: '', unit: 'each' }
 }
 
 function loadDraft(): Draft {
@@ -172,15 +173,27 @@ function App() {
           {draft.items.map((item, index) => (
             <div className="item-row" key={item.id}>
               <span className="row-index">{(index + 1).toString().padStart(2, '0')}</span>
-              <label className="sr-only" htmlFor={`item-${item.id}`}>Item name, row {index + 1}</label>
-              <input
-                id={`item-${item.id}`}
-                className="item-name-input"
-                autoComplete="off"
-                placeholder="e.g. Roma tomatoes"
-                value={item.name}
-                onChange={(event) => updateItem(item.id, 'name', event.target.value)}
-              />
+              <div className="item-details">
+                <label className="sr-only" htmlFor={`item-${item.id}`}>Item name, row {index + 1}</label>
+                <input
+                  id={`item-${item.id}`}
+                  className="item-name-input"
+                  autoComplete="off"
+                  placeholder="e.g. Roma tomatoes"
+                  value={item.name}
+                  onChange={(event) => updateItem(item.id, 'name', event.target.value)}
+                />
+                <label className="sr-only" htmlFor={`description-${item.id}`}>Description or reason, optional, row {index + 1}</label>
+                <textarea
+                  id={`description-${item.id}`}
+                  className="item-description-input"
+                  placeholder="Description / reason (optional)"
+                  maxLength={300}
+                  rows={1}
+                  value={item.description ?? ''}
+                  onChange={(event) => updateItem(item.id, 'description', event.target.value)}
+                />
+              </div>
               <label className="sr-only" htmlFor={`quantity-${item.id}`}>Quantity, row {index + 1}</label>
               <input
                 id={`quantity-${item.id}`}
@@ -307,7 +320,13 @@ async function createInventoryPdf(items: InventoryItem[], worker: string) {
 
   drawTableHeader()
   items.forEach((item, index) => {
-    if (y + 10 > pageHeight - 22) {
+    const itemName = pdf.splitTextToSize(item.name.trim(), right - margin - 77)
+    const description = item.description?.trim()
+      ? pdf.splitTextToSize(item.description.trim(), right - margin - 77)
+      : []
+    const rowHeight = Math.max(11, 7 + itemName.length * 4.3 + description.length * 3.6)
+
+    if (y + rowHeight > pageHeight - 22) {
       addPdfFooter(pdf, pageHeight, margin, right)
       pdf.addPage()
       y = 20
@@ -315,7 +334,7 @@ async function createInventoryPdf(items: InventoryItem[], worker: string) {
     }
     if (index % 2 === 0) {
       pdf.setFillColor(248, 249, 246)
-      pdf.rect(margin, y, right - margin, 11, 'F')
+      pdf.rect(margin, y, right - margin, rowHeight, 'F')
     }
     pdf.setTextColor(139, 148, 139)
     pdf.setFont('helvetica', 'normal')
@@ -324,13 +343,20 @@ async function createInventoryPdf(items: InventoryItem[], worker: string) {
     pdf.setTextColor(37, 46, 39)
     pdf.setFont('helvetica', 'bold')
     pdf.setFontSize(10)
-    const itemName = pdf.splitTextToSize(item.name.trim(), right - margin - 77)
-    pdf.text(itemName[0], margin + 20, y + 7)
+    pdf.text(itemName, margin + 20, y + 6)
+    if (description.length) {
+      pdf.setTextColor(109, 119, 110)
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(8)
+      pdf.text(description, margin + 20, y + 6 + itemName.length * 4.3)
+    }
+    pdf.setTextColor(37, 46, 39)
     pdf.setFont('helvetica', 'normal')
-    pdf.text(item.quantity, right - 48, y + 7)
+    pdf.setFontSize(10)
+    pdf.text(item.quantity, right - 48, y + 6)
     pdf.setTextColor(99, 110, 100)
-    pdf.text(item.unit, right - 5, y + 7, { align: 'right' })
-    y += 11
+    pdf.text(item.unit, right - 5, y + 6, { align: 'right' })
+    y += rowHeight
   })
 
   addPdfFooter(pdf, pageHeight, margin, right)
