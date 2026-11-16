@@ -7,7 +7,10 @@ type InventoryItem = {
   description: string
   quantity: string
   unit: string
+  category: InventoryCategory
 }
+
+type InventoryCategory = 'received' | 'storeroom' | 'boh' | 'foh' | 'waste'
 
 type Draft = {
   worker: string
@@ -16,17 +19,40 @@ type Draft = {
 
 const storageKey = 'stockroom-inventory-draft'
 const units = ['each', 'kg', 'g', 'L', 'mL', 'box', 'pack', 'bottle', 'case']
+const inventoryCategories: { id: InventoryCategory; title: string; tag: string }[] = [
+  { id: 'received', title: 'Goods Received Log (Stock enters the building)', tag: 'Goods received' },
+  { id: 'storeroom', title: 'Main Storeroom Inventory Sheet (Bulk stock waiting to be used)', tag: 'Main storeroom' },
+  { id: 'boh', title: 'BOH Par & Prep Sheet (Kitchen line & prep)', tag: 'BOH par & prep' },
+  { id: 'foh', title: 'FOH / Service Station Par Sheet (Counter, drinks, packaging)', tag: 'FOH / service' },
+  { id: 'waste', title: 'Daily Waste & Spoilage Log (Stock lost before sale)', tag: 'Waste & spoilage' },
+]
 
 function newItem(): InventoryItem {
-  return { id: crypto.randomUUID(), name: '', description: '', quantity: '', unit: 'each' }
+  return { id: crypto.randomUUID(), name: '', description: '', quantity: '', unit: 'each', category: 'storeroom' }
 }
 
 function loadDraft(): Draft {
   try {
     const saved = localStorage.getItem(storageKey)
     if (saved) {
-      const draft = JSON.parse(saved) as Draft
-      if (Array.isArray(draft.items) && draft.items.length) return draft
+      const savedDraft = JSON.parse(saved) as Partial<Draft> & {
+        lists?: Partial<Record<'Kitchen' | 'FOH' | 'Storage', InventoryItem[]>>
+      }
+      const items = savedDraft.items ?? [
+        ...(savedDraft.lists?.Kitchen ?? []).map((item) => ({ ...item, category: 'boh' as const })),
+        ...(savedDraft.lists?.FOH ?? []).map((item) => ({ ...item, category: 'foh' as const })),
+        ...(savedDraft.lists?.Storage ?? []).map((item) => ({ ...item, category: 'storeroom' as const })),
+      ]
+      return {
+        worker: savedDraft.worker ?? '',
+        items: (items.length ? items : [newItem()]).map((item) => ({
+          ...item,
+          description: item.description ?? '',
+          category: inventoryCategories.some((category) => category.id === item.category)
+            ? item.category
+            : 'storeroom',
+        })),
+      }
     }
   } catch {
     // Start with a clean draft when saved data is unavailable.
@@ -163,7 +189,7 @@ function App() {
         <div className="card-heading">
           <div>
             <div className="section-kicker">01 / COUNT</div>
-            <h2>Inventory list</h2>
+            <h2>Inventory items</h2>
           </div>
           <div className="item-count"><span>{readyItems.length.toString().padStart(2, '0')}</span> ITEMS</div>
         </div>
@@ -186,6 +212,21 @@ function App() {
             <div className="item-row" key={item.id}>
               <span className="row-index">{(index + 1).toString().padStart(2, '0')}</span>
               <div className="item-details">
+                <div className="item-category-field">
+                  <label className="sr-only" htmlFor={`category-${item.id}`}>Inventory list for row {index + 1}</label>
+                  <div className="category-tag">
+                    <span>{inventoryCategories.find((category) => category.id === item.category)?.tag}</span>
+                    <select
+                      id={`category-${item.id}`}
+                      className="category-select"
+                      title={inventoryCategories.find((category) => category.id === item.category)?.title}
+                      value={item.category}
+                      onChange={(event) => updateItem(item.id, 'category', event.target.value as InventoryCategory)}
+                    >
+                      {inventoryCategories.map((category) => <option key={category.id} value={category.id}>{category.title}</option>)}
+                    </select>
+                  </div>
+                </div>
                 <label className="sr-only" htmlFor={`item-${item.id}`}>Item name, row {index + 1}</label>
                 <input
                   id={`item-${item.id}`}
@@ -336,46 +377,74 @@ async function createInventoryPdf(items: InventoryItem[], worker: string) {
     y += 10
   }
 
-  drawTableHeader()
-  items.forEach((item, index) => {
-    const itemName = pdf.splitTextToSize(item.name.trim(), right - margin - 77)
-    const description = item.description?.trim()
-      ? pdf.splitTextToSize(item.description.trim(), right - margin - 77)
-      : []
-    const rowHeight = Math.max(11, 7 + itemName.length * 4.3 + description.length * 3.6)
+  const drawSectionHeader = (category: typeof inventoryCategories[number]) => {
+    pdf.setFillColor(237, 241, 235)
+    pdf.roundedRect(margin, y, right - margin, 11, 1.5, 1.5, 'F')
+    pdf.setTextColor(36, 76, 59)
+    pdf.setFont('helvetica', 'bold')
+    pdf.setFontSize(9)
+    pdf.text(category.title, margin + 4, y + 7)
+    y += 13
+  }
 
-    if (y + rowHeight > pageHeight - 22) {
+  const groups = inventoryCategories
+    .map((category) => ({
+      category,
+      items: items.filter((item) => item.category === category.id),
+    }))
+    .filter((group) => group.items.length > 0)
+
+  for (const group of groups) {
+    if (y + 24 > pageHeight - 22) {
       addPdfFooter(pdf, pageHeight, margin, right)
       pdf.addPage()
       y = 20
-      drawTableHeader()
     }
-    if (index % 2 === 0) {
-      pdf.setFillColor(248, 249, 246)
-      pdf.rect(margin, y, right - margin, rowHeight, 'F')
-    }
-    pdf.setTextColor(139, 148, 139)
-    pdf.setFont('helvetica', 'normal')
-    pdf.setFontSize(8)
-    pdf.text(String(index + 1).padStart(2, '0'), margin + 4, y + 7)
-    pdf.setTextColor(37, 46, 39)
-    pdf.setFont('helvetica', 'bold')
-    pdf.setFontSize(10)
-    pdf.text(itemName, margin + 20, y + 6)
-    if (description.length) {
-      pdf.setTextColor(109, 119, 110)
+    drawSectionHeader(group.category)
+    drawTableHeader()
+
+    group.items.forEach((item, index) => {
+      const itemName = pdf.splitTextToSize(item.name.trim(), right - margin - 77)
+      const description = item.description?.trim()
+        ? pdf.splitTextToSize(item.description.trim(), right - margin - 77)
+        : []
+      const rowHeight = Math.max(11, 7 + itemName.length * 4.3 + description.length * 3.6)
+
+      if (y + rowHeight > pageHeight - 22) {
+        addPdfFooter(pdf, pageHeight, margin, right)
+        pdf.addPage()
+        y = 20
+        drawSectionHeader(group.category)
+        drawTableHeader()
+      }
+      if (index % 2 === 0) {
+        pdf.setFillColor(248, 249, 246)
+        pdf.rect(margin, y, right - margin, rowHeight, 'F')
+      }
+      pdf.setTextColor(139, 148, 139)
       pdf.setFont('helvetica', 'normal')
       pdf.setFontSize(8)
-      pdf.text(description, margin + 20, y + 6 + itemName.length * 4.3)
-    }
-    pdf.setTextColor(37, 46, 39)
-    pdf.setFont('helvetica', 'normal')
-    pdf.setFontSize(10)
-    pdf.text(item.quantity, right - 48, y + 6)
-    pdf.setTextColor(99, 110, 100)
-    pdf.text(item.unit, right - 5, y + 6, { align: 'right' })
-    y += rowHeight
-  })
+      pdf.text(String(index + 1).padStart(2, '0'), margin + 4, y + 7)
+      pdf.setTextColor(37, 46, 39)
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(10)
+      pdf.text(itemName, margin + 20, y + 6)
+      if (description.length) {
+        pdf.setTextColor(109, 119, 110)
+        pdf.setFont('helvetica', 'normal')
+        pdf.setFontSize(8)
+        pdf.text(description, margin + 20, y + 6 + itemName.length * 4.3)
+      }
+      pdf.setTextColor(37, 46, 39)
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(10)
+      pdf.text(item.quantity, right - 48, y + 6)
+      pdf.setTextColor(99, 110, 100)
+      pdf.text(item.unit, right - 5, y + 6, { align: 'right' })
+      y += rowHeight
+    })
+    y += 7
+  }
 
   addPdfFooter(pdf, pageHeight, margin, right)
   const filenameDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Helsinki' }).format(date)
