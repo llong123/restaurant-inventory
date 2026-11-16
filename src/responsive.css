@@ -1,0 +1,274 @@
+/* Mobile layout */
+@media (max-width: 600px) {
+  .app-shell {
+    width: min(100% - 28px, 480px);
+  }
+  .topbar {
+    height: 60px;
+  }
+  .brand {
+    gap: 6px;
+    font-size: 13px;
+    letter-spacing: -0.5px;
+  }
+  .header-tools {
+    gap: 8px;
+  }
+  .topbar-note {
+    display: none;
+  }
+  .language-picker select {
+    min-width: 72px;
+    height: 32px;
+    padding-left: 8px;
+    font-size: 10px;
+  }
+  .intro {
+    padding: 31px 0 18px;
+  }
+  .intro-row {
+    margin-top: 16px;
+  }
+  .intro h1 {
+    font-size: clamp(43px, 11vw, 56px);
+    letter-spacing: -3px;
+  }
+  .intro h1.restaurant-title {
+    font-size: clamp(29px, 8.5vw, 38px);
+    letter-spacing: -1.8px;
+  }
+  .intro-copy {
+    font-size: 12px;
+    line-height: 1.55;
+    margin-top: 10px;
+  }
+  .desktop-break {
+    display: none;
+  }
+  .date-card {
+    min-width: 86px;
+    padding: 9px 10px;
+    border-radius: 8px;
+  }
+  .date-card strong {
+    font-size: 11px;
+  }
+  .date-card-time {
+    font-size: 10px;
+  }
+  .inventory-card {
+    padding: 20px 14px 0;
+    border-radius: 11px;
+    box-shadow: 0 8px 26px rgba(34, 48, 37, 0.05);
+  }
+  .card-heading {
+    padding-bottom: 17px;
+  }
+  .card-heading h2 {
+    font-size: 19px;
+  }
+  .worker-field {
+    width: 100%;
+    margin: 16px 0 22px;
+  }
+  .worker-field input {
+    height: 48px;
+    font-size: 16px;
+  }
+  .list-labels {
+    display: none;
+  }
+  .item-list {
+    gap: 10px;
+  }
+  .item-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px;
+    grid-template-areas: "name name remove" "quantity unit .";
+    gap: 9px 8px;
+    padding: 12px;
+    border: 1px solid #e9ece6;
+    border-radius: 9px;
+    background: #fcfcfa;
+  }
+  .item-details {
+    grid-area: name;
+    gap: 8px;
+  }
+  .row-index {
+    display: none;
+  }
+  .quantity-input {
+    grid-area: quantity;
+    text-align: left;
+  }
+  .unit-select {
+    grid-area: unit;
+  }
+  .item-row input,
+  .item-row select {
+    height: 48px;
+    padding: 0 12px;
+    font-size: 16px;
+  }
+  .item-details .item-name-input {
+    height: 48px;
+  }
+  .item-description-input {
+    min-height: 44px;
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+  .item-row select:not(.category-select) {
+    padding-right: 27px;
+    background-position: right 9px center;
+  }
+  .remove-button {
+    grid-area: remove;
+    justify-self: end;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #e9ece6;
+    background: #fff;
+    color: #858f85;
+  }
+  .remove-button svg {
+    width: 20px;
+    height: 20px;
+  }
+  .add-button {
+    min-height: 46px;
+    gap: 10px;
+    margin: 10px 0 0;
+    padding: 7px 8px;
+    font-size: 12px;
+  }
+  .add-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .add-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+  .form-bottom {
+    gap: 8px;
+    margin-top: 12px;
+    padding: 12px 0;
+  }
+  .privacy-note {
+    max-width: 245px;
+    align-items: flex-start;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .privacy-note svg {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+  }
+  .clear-button {
+    min-height: 40px;
+    padding: 6px 4px 6px 10px;
+    font-size: 11px;
+  }
+  .actions-row {
+    position: sticky;
+    z-index: 5;
+    bottom: 0;
+    gap: 7px;
+    margin: 0 -14px;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(255, 255, 255, 0.97);
+    border-top: 1px solid var(--line);
+  }
+  .submit-button {
+    min-height: 58px;
+    padding-left: 12px;
+    font-size: 12px;
+  }
+  .submit-icon {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 44px;
+  }
+  .share-button {
+    min-width: 0;
+    min-height: 58px;
+    gap: 6px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .share-button svg {
+    width: 16px;
+    height: 16px;
+  }
+  .submit-caption {
+    margin: 9px 0 14px;
+  }
+  .page-footer {
+    gap: 8px;
+    padding: 19px 1px 22px;
+    font-size: 7px;
+  }
+}
+
+/* Thai typography */
+.app-shell[lang="th"] {
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+.app-shell[lang="th"] .topbar-note,
+.app-shell[lang="th"] .eyebrow,
+.app-shell[lang="th"] .section-kicker,
+.app-shell[lang="th"] .item-count,
+.app-shell[lang="th"] .date-card-label,
+.app-shell[lang="th"] .worker-field > span,
+.app-shell[lang="th"] .list-labels,
+.app-shell[lang="th"] .page-footer,
+.app-shell[lang="th"] .date-card-time,
+.app-shell[lang="th"] .form-bottom,
+.app-shell[lang="th"] .submit-button,
+.app-shell[lang="th"] .share-button,
+.app-shell[lang="th"] .submit-caption {
+  font-family: "Noto Sans Thai", sans-serif;
+  letter-spacing: 0;
+}
+
+/* Compact phones and touch targets */
+@media (max-width: 370px) {
+  .app-shell {
+    width: calc(100% - 22px);
+  }
+  .intro h1 {
+    font-size: 43px;
+  }
+  .intro h1.restaurant-title {
+    font-size: 28px;
+    letter-spacing: -1.7px;
+  }
+  .intro-copy {
+    max-width: 185px;
+  }
+  .inventory-card {
+    padding-right: 11px;
+    padding-left: 11px;
+  }
+  .item-row {
+    padding: 10px;
+  }
+  .share-button {
+    gap: 5px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+  .page-footer {
+    font-size: 6px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  button,
+  select {
+    touch-action: manipulation;
+  }
+}

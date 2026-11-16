@@ -1,0 +1,230 @@
+/* Inventory card and item controls */
+.inventory-card {
+  padding: 27px 30px 0;
+  border: 1px solid #e8eae5;
+  border-radius: var(--radius-card);
+  background: var(--paper);
+  box-shadow: var(--shadow-card);
+}
+.card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+.section-kicker {
+  color: #929990;
+  font-size: 8px;
+}
+.card-heading h2 {
+  margin: 5px 0 0;
+  font:
+    600 20px "Manrope",
+    "Noto Sans Thai",
+    sans-serif;
+  letter-spacing: -0.5px;
+}
+.item-count {
+  color: #9aa198;
+  font-size: 8px;
+}
+.item-count span {
+  color: var(--green);
+  font:
+    600 17px "Manrope",
+    "Noto Sans Thai",
+    sans-serif;
+  letter-spacing: -0.4px;
+  margin-right: 5px;
+}
+.worker-field {
+  width: min(260px, 100%);
+  display: block;
+  margin: 20px 0 25px;
+}
+.worker-field > span {
+  display: block;
+  color: #838d83;
+  font-size: 8px;
+  margin-bottom: 8px;
+}
+.required {
+  color: var(--danger);
+}
+.worker-field input,
+.item-row input,
+.item-row select {
+  width: 100%;
+  color: var(--ink);
+  border: 1px solid #e7eae4;
+  border-radius: var(--radius-control);
+  background: #fff;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.worker-field input {
+  height: 40px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+.worker-field input:focus,
+.item-row input:focus,
+.item-row select:focus,
+.item-description-input:focus {
+  border-color: #93ad98;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(93, 133, 103, 0.1);
+}
+.worker-field input.worker-name-empty {
+  border-color: #c85c50;
+  background: #fffafa;
+  box-shadow: 0 0 0 2px rgba(200, 92, 80, 0.08);
+}
+.worker-field input.worker-name-empty:focus {
+  border-color: #c85c50;
+  box-shadow: 0 0 0 3px rgba(200, 92, 80, 0.12);
+}
+.list-labels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 100px 100px 29px;
+  gap: 10px;
+  padding: 0 0 9px 36px;
+  color: #9aa198;
+  font-size: 8px;
+}
+.item-list {
+  display: grid;
+  gap: 8px;
+}
+.item-row {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) 100px 100px 29px;
+  align-items: center;
+  gap: 10px;
+}
+.row-index {
+  color: #a4aaa2;
+  font:
+    9px "DM Mono",
+    monospace;
+  text-align: center;
+}
+.item-details {
+  grid-column: 2;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.item-row input,
+.item-row select {
+  height: 42px;
+  padding: 0 11px;
+  font-size: 12px;
+}
+.item-details .item-name-input {
+  height: 38px;
+}
+.item-description-input {
+  width: 100%;
+  min-height: 32px;
+  resize: vertical;
+  padding: 7px 10px;
+  color: var(--ink);
+  border: 1px solid #e7eae4;
+  border-radius: var(--radius-control);
+  background: #fff;
+  font:
+    11px/1.4 "DM Sans",
+    "Noto Sans Thai",
+    sans-serif;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.item-category-field {
+  min-width: 0;
+}
+.category-tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 32px;
+  padding: 0 29px 0 11px;
+  overflow: hidden;
+  border: 1px solid #dfe7df;
+  border-radius: 999px;
+  background: #eef3ed;
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 600;
+}
+.category-tag > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.item-row .category-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.item-row select:not(.category-select) {
+  appearance: none;
+  padding-right: 27px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237d887e' stroke-width='2'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+}
+.quantity-input {
+  text-align: right;
+}
+.remove-button {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #a9b0a8;
+  border-radius: 6px;
+}
+.remove-button:hover {
+  color: #a65045;
+  background: #fbf3f1;
+}
+.remove-button svg {
+  width: 16px;
+  height: 16px;
+}
+.add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 13px 0 0 35px;
+  padding: 7px 0;
+  border: 0;
+  background: transparent;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 600;
+}
+.add-icon {
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border: 1px solid #dfe7df;
+  border-radius: 6px;
+}
+.add-icon svg {
+  width: 14px;
+  height: 14px;
+}

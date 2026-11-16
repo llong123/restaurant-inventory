@@ -1,0 +1,126 @@
+/* Feedback, actions, and status */
+.form-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 17px;
+  padding: 14px 0 16px;
+  border-top: 1px solid var(--line);
+}
+.privacy-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #899289;
+  font-size: 10px;
+}
+.privacy-note svg {
+  width: 14px;
+  height: 14px;
+  color: #7d9a82;
+}
+.clear-button {
+  padding: 6px 0 6px 10px;
+  border: 0;
+  background: transparent;
+  color: #899289;
+  font-size: 10px;
+}
+.clear-button:hover {
+  color: #a65045;
+}
+.form-message {
+  margin: 0 0 12px;
+  font-size: 11px;
+}
+.error-message {
+  color: var(--danger);
+}
+.success-message {
+  color: var(--green);
+}
+.actions-row {
+  display: flex;
+  gap: 9px;
+}
+.submit-button {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 7px 6px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--green);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+.submit-button:hover {
+  background: #1b3f30;
+}
+.submit-button:active {
+  transform: translateY(1px);
+}
+.submit-button:disabled,
+.share-button:disabled {
+  cursor: not-allowed;
+}
+.submit-button:disabled {
+  background: #aeb8af;
+  color: #f7f8f6;
+}
+.submit-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.submit-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.share-button {
+  min-width: 130px;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 1px solid #dfe7df;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 600;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.share-button:hover {
+  border-color: #b9cbb9;
+  background: #f7faf6;
+}
+.share-button:disabled {
+  border-color: #e6e9e4;
+  background: #f5f6f3;
+  color: #a2aaa1;
+}
+.share-button svg {
+  width: 17px;
+  height: 17px;
+}
+.submit-caption {
+  margin: 10px 0 17px;
+  color: #9aa198;
+  font-size: 10px;
+  text-align: center;
+}

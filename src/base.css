@@ -1,0 +1,63 @@
+/* Theme tokens and reset */
+:root {
+  font-family: "DM Sans", "Noto Sans Thai", sans-serif;
+  color: #242a25;
+  background: #f7f7f4;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --ink: #242a25;
+  --muted: #828b82;
+  --green: #244c3b;
+  --line: #e5e8e1;
+  --paper: #fff;
+  --danger: #b34e42;
+  --radius-control: 7px;
+  --radius-card: 13px;
+  --shadow-card: 0 12px 40px rgba(34, 48, 37, 0.045);
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 3px solid #b1c8b7;
+  outline-offset: 3px;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #a5ada4;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

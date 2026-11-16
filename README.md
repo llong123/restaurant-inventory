@@ -11,6 +11,10 @@ npm run dev
 
 Build the production site with `npm run build`. Inventory drafts are saved in the current browser only; creating a report downloads a PDF and does not send data to a server.
 
+## Languages and styles
+
+The interface supports English, Finnish, and Thai. UI and PDF copy live in `src/translations.ts`; update all locale entries there when changing user-facing text. Styles are split by responsibility into `src/base.css`, `src/layout.css`, `src/form.css`, `src/actions.css`, and `src/responsive.css`.
+
 ## Deploy to GitHub Pages
 
 The included GitHub Actions workflow builds the app and deploys it to Pages whenever `main` is updated. Create a GitHub repository for this project, push the `main` branch, then open the repository's **Settings → Pages** and set the build source to **GitHub Actions**. The first workflow run will publish the site at `https://<github-username>.github.io/<repository-name>/`.

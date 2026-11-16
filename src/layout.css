@@ -1,0 +1,180 @@
+/* Page shell, header, and date */
+.app-shell {
+  width: min(100% - 64px, 790px);
+  margin: 0 auto;
+}
+.topbar {
+  height: 76px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  color: var(--ink);
+  text-decoration: none;
+  font:
+    700 18px "Manrope",
+    "Noto Sans Thai",
+    sans-serif;
+  letter-spacing: -0.8px;
+}
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #e8eee8;
+  color: var(--green);
+}
+.brand-mark svg {
+  width: 19px;
+  height: 19px;
+}
+.brand-dot {
+  color: #d78567;
+}
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.topbar-note,
+.eyebrow,
+.section-kicker,
+.item-count,
+.date-card-label,
+.worker-field > span,
+.list-labels,
+.page-footer {
+  font-family: "DM Mono", "Noto Sans Thai", monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+.topbar-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #77a182;
+  box-shadow: 0 0 0 3px #e6eee6;
+}
+.language-picker {
+  position: relative;
+}
+.language-picker::after {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  width: 7px;
+  height: 7px;
+  border-right: 1px solid #657468;
+  border-bottom: 1px solid #657468;
+  content: "";
+  pointer-events: none;
+  transform: translateY(-70%) rotate(45deg);
+}
+.language-picker select {
+  min-width: 84px;
+  height: 34px;
+  appearance: none;
+  padding: 0 25px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 11px;
+}
+.intro {
+  padding: 55px 0 28px;
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #839084;
+}
+.eyebrow-rule {
+  width: 20px;
+  height: 1px;
+  background: #d78567;
+}
+.intro-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.intro h1 {
+  margin: 0;
+  font:
+    600 clamp(48px, 8vw, 66px)/0.99 "Manrope",
+    "Noto Sans Thai",
+    sans-serif;
+  letter-spacing: -4px;
+}
+.intro h1.restaurant-title {
+  font-size: clamp(44px, 6vw, 56px);
+  letter-spacing: -3px;
+}
+.intro h1 span {
+  color: var(--green);
+  font-weight: 500;
+}
+.intro-copy {
+  color: #778078;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 15px 0 0;
+}
+.date-card {
+  min-width: 104px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.62);
+  margin-bottom: 2px;
+}
+.date-card-label {
+  display: block;
+  color: #929a91;
+  font-size: 8px;
+  margin-bottom: 6px;
+}
+.date-card strong {
+  display: block;
+  color: var(--green);
+  font:
+    600 14px "Manrope",
+    "Noto Sans Thai",
+    sans-serif;
+}
+.date-card-time {
+  display: block;
+  margin-top: 5px;
+  color: #778078;
+  font:
+    11px "DM Mono",
+    "Noto Sans Thai",
+    monospace;
+  letter-spacing: 0.04em;
+}
+.page-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px 1px 28px;
+  color: #9aa198;
+  font-size: 8px;
+}
+.footer-star {
+  color: #d78567;
+}
