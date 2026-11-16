@@ -36,9 +36,20 @@ function loadDraft(): Draft {
 
 function App() {
   const [draft, setDraft] = useState<Draft>(loadDraft)
+  const [currentTime, setCurrentTime] = useState(() => new Date())
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const readyItems = draft.items.filter((item) => item.name.trim() && item.quantity.trim())
+
+  useEffect(() => {
+    let timer: number
+    const updateClock = () => {
+      setCurrentTime(new Date())
+      timer = window.setTimeout(updateClock, 60_000 - (Date.now() % 60_000))
+    }
+    updateClock()
+    return () => window.clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     localStorage.setItem(storageKey, JSON.stringify(draft))
@@ -126,23 +137,24 @@ function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Stockroom home">
+        <a className="brand" href="#top" aria-label="Daily Stock Sheet home">
           <span className="brand-mark" aria-hidden="true"><Icon name="stack" /></span>
-          <span>stockroom<span className="brand-dot">.</span></span>
+          <span>Daily Stock Sheet<span className="brand-dot">.</span></span>
         </a>
-        <div className="topbar-note"><span className="status-dot" /> SHIFT INVENTORY</div>
+        <div className="topbar-note"><span className="status-dot" /> DAILY COUNT</div>
       </header>
 
       <section className="intro" id="top">
-        <div className="eyebrow"><span className="eyebrow-rule" /> THE DAILY COUNT</div>
+        <div className="eyebrow"><span className="eyebrow-rule" /> RESTAURANT INVENTORY</div>
         <div className="intro-row">
           <div>
-            <h1>Know what’s<br />in <span>stock.</span></h1>
-            <p className="intro-copy">A quick count now keeps the whole kitchen<br className="desktop-break" /> on the same page.</p>
+            <h1 className="restaurant-title">Chao Phraya<br /><span>Hietalahti.</span></h1>
+            <p className="intro-copy">Daily Stock Sheet</p>
           </div>
           <div className="date-card">
             <span className="date-card-label">TODAY</span>
-            <strong>{new Intl.DateTimeFormat('en', { weekday: 'short', day: '2-digit', month: 'short' }).format(new Date())}</strong>
+            <strong>{new Intl.DateTimeFormat('en', { weekday: 'short', day: '2-digit', month: 'short', timeZone: 'Europe/Helsinki' }).format(currentTime)}</strong>
+            <span className="date-card-time">{new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Helsinki' }).format(currentTime)}</span>
           </div>
         </div>
       </section>
@@ -246,7 +258,7 @@ function App() {
         <p className="submit-caption">Share straight to your team’s chat.</p>
       </form>
 
-      <footer className="page-footer"><span>GOOD SERVICE STARTS IN THE KITCHEN.</span><span>STOCKROOM <span className="footer-star">✳</span> 01</span></footer>
+      <footer className="page-footer"><span>CHAO PHRAYA HIETALAHTI</span><span>DAILY STOCK SHEET <span className="footer-star">✳</span></span></footer>
     </main>
   )
 }
@@ -259,20 +271,24 @@ async function createInventoryPdf(items: InventoryItem[], worker: string) {
   const margin = 19
   const right = pageWidth - margin
   const date = new Date()
-  const dateLabel = new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date)
+  const dateLabel = new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Helsinki' }).format(date)
+  const submittedAt = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    timeZone: 'Europe/Helsinki', timeZoneName: 'short',
+  }).format(date)
 
-  pdf.setProperties({ title: 'Restaurant inventory report', subject: `Inventory count · ${dateLabel}`, author: worker || 'Restaurant team' })
+  pdf.setProperties({ title: 'Daily Stock Sheet — Chao Phraya Hietalahti', subject: `Inventory count · ${dateLabel} · submitted ${submittedAt}`, author: worker || 'Chao Phraya Hietalahti' })
   pdf.setFillColor(36, 76, 59)
   pdf.rect(0, 0, pageWidth, 4, 'F')
 
   pdf.setTextColor(36, 76, 59)
   pdf.setFont('helvetica', 'bold')
   pdf.setFontSize(10)
-  pdf.text('STOCKROOM', margin, 17)
+  pdf.text('CHAO PHRAYA HIETALAHTI', margin, 17)
   pdf.setTextColor(128, 137, 128)
   pdf.setFont('helvetica', 'normal')
   pdf.setFontSize(8)
-  pdf.text('KITCHEN OPERATIONS', right, 17, { align: 'right' })
+  pdf.text('DAILY STOCK SHEET', right, 17, { align: 'right' })
 
   pdf.setDrawColor(225, 229, 222)
   pdf.setLineWidth(0.35)
@@ -281,13 +297,15 @@ async function createInventoryPdf(items: InventoryItem[], worker: string) {
   pdf.setTextColor(31, 40, 33)
   pdf.setFont('helvetica', 'bold')
   pdf.setFontSize(25)
-  pdf.text('Inventory report', margin, 37)
+  pdf.text('Daily Stock Sheet', margin, 37)
   pdf.setTextColor(109, 119, 110)
   pdf.setFont('helvetica', 'normal')
   pdf.setFontSize(10)
   pdf.text(dateLabel, margin, 44)
+  pdf.setFontSize(8)
+  pdf.text(`Submitted ${submittedAt}`, margin, 50)
 
-  const metaTop = 55
+  const metaTop = 58
   const metaWidth = (right - margin - 8) / 2
   pdf.setFillColor(246, 247, 243)
   pdf.roundedRect(margin, metaTop, metaWidth, 19, 2, 2, 'F')
@@ -304,7 +322,7 @@ async function createInventoryPdf(items: InventoryItem[], worker: string) {
   pdf.setFont('helvetica', 'normal')
   pdf.text(worker || 'Not specified', margin + metaWidth + 13, metaTop + 14)
 
-  let y = 88
+  let y = 91
   const drawTableHeader = () => {
     pdf.setFillColor(36, 76, 59)
     pdf.roundedRect(margin, y, right - margin, 10, 1.5, 1.5, 'F')
@@ -360,7 +378,7 @@ async function createInventoryPdf(items: InventoryItem[], worker: string) {
   })
 
   addPdfFooter(pdf, pageHeight, margin, right)
-  const filenameDate = new Intl.DateTimeFormat('en-CA').format(date)
+  const filenameDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Helsinki' }).format(date)
   return new File([pdf.output('blob')], `inventory-${filenameDate}.pdf`, { type: 'application/pdf' })
 }
 
@@ -381,7 +399,7 @@ function addPdfFooter(pdf: jsPDF, pageHeight: number, margin: number, right: num
   pdf.setFont('helvetica', 'normal')
   pdf.setFontSize(7)
   pdf.text('INTERNAL KITCHEN INVENTORY', margin, pageHeight - 9)
-  pdf.text('STOCKROOM', right, pageHeight - 9, { align: 'right' })
+  pdf.text('CHAO PHRAYA HIETALAHTI', right, pageHeight - 9, { align: 'right' })
 }
 
 function Icon({ name }: { name: 'stack' | 'plus' | 'close' | 'check' | 'arrow' | 'share' }) {
